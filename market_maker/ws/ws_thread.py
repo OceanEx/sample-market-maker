@@ -37,7 +37,7 @@ class BitMEXWebsocket():
     def __del__(self):
         self.exit()
 
-    def connect(self, endpoint="", symbol="XBTN15", shouldAuth=True):
+    def connect(self, endpoint="", symbol="XBTUSD", shouldAuth=True):
         '''Connect to the websocket and initialize data stores.'''
 
         self.logger.debug("Connecting WebSocket.")
@@ -45,9 +45,10 @@ class BitMEXWebsocket():
         self.shouldAuth = shouldAuth
 
         # We can subscribe right in the connection querystring, so let's build that.
-        # Subscribe to all pertinent endpoints
+        # Subscribe to all pertinent endpoints  
+        # subscriptions -- ['quote:XBTUSD', 'trade:XBTUSD', 'instrument']
         subscriptions = [sub + ':' + symbol for sub in ["quote", "trade"]]
-        subscriptions += ["instrument"]  # We want all of them
+        subscriptions += ["instrument"]  # We want all of them       
         if self.shouldAuth:
             subscriptions += [sub + ':' + symbol for sub in ["order", "execution"]]
             subscriptions += ["margin", "position"]
@@ -55,7 +56,7 @@ class BitMEXWebsocket():
         # Get WS URL and connect.
         urlParts = list(urlparse(endpoint))
         urlParts[0] = urlParts[0].replace('http', 'ws')
-        urlParts[2] = "/realtime?subscribe=" + ",".join(subscriptions)
+        urlParts[2] = "/realtime?subscribe=" + ",".join(subscriptions)        
         wsURL = urlunparse(urlParts)
         self.logger.info("Connecting to %s" % wsURL)
         self.__connect(wsURL)
@@ -112,7 +113,7 @@ class BitMEXWebsocket():
         # return self.data['orderBook25'][0]
 
     def open_orders(self, clOrdIDPrefix):
-        orders = self.data['order']
+        orders = self.data['order']       
         # Filter to only open orders (leavesQty > 0) and those that we actually placed
         return [o for o in orders if str(o['clOrdID']).startswith(clOrdIDPrefix) and o['leavesQty'] > 0]
 
